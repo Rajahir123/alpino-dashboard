@@ -1,0 +1,604 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Alpino – Returns & Issues Dashboard</title>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=Sora:wght@600;700;800&display=swap" rel="stylesheet">
+<style>
+:root{
+  --g1:#1a4d24;--g2:#2D7A3A;--g3:#4CAF61;--gbg:#eaf5ec;
+  --o1:#a85510;--o2:#E8832A;--obg:#fff2e5;
+  --r1:#991b1b;--r2:#dc2626;--rbg:#fef2f2;
+  --y1:#92400e;--y2:#d97706;--ybg:#fffbeb;
+  --b1:#1e3a8a;--b2:#2563eb;--bbg:#eff6ff;
+  --p1:#4c1d95;--p2:#7c3aed;--pbg:#f5f3ff;
+  --s1:#1f2937;--s2:#6b7280;--s3:#9ca3af;--s4:#d1d5db;--s5:#f9fafb;
+  --wh:#fff;--tx:#111827;--rad:12px;--sh:0 1px 10px rgba(0,0,0,.06);
+}
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:'Plus Jakarta Sans',sans-serif;background:#edf1ee;color:var(--tx);min-height:100vh}
+@keyframes up{from{opacity:0;transform:translateY(14px)}to{opacity:1;transform:none}}
+@keyframes spin{to{transform:rotate(360deg)}}
+
+/* ROLE SCREEN */
+#roleScreen{position:fixed;inset:0;z-index:9999;overflow-y:auto;background:linear-gradient(150deg,#0f2914,#1a4d24 40%,#2D7A3A);display:flex;flex-direction:column;align-items:center;justify-content:center;padding:40px 16px}
+.brand-top{display:flex;align-items:center;gap:14px;margin-bottom:38px}
+.brand-icon{width:56px;height:56px;background:rgba(255,255,255,.12);border-radius:15px;display:flex;align-items:center;justify-content:center}
+.brand-name{font-family:'Sora',sans-serif;font-size:25px;font-weight:800;color:#fff;line-height:1.1}
+.brand-name small{display:block;font-family:'Plus Jakarta Sans',sans-serif;font-size:11.5px;font-weight:500;color:rgba(255,255,255,.5);letter-spacing:.5px;margin-top:3px}
+.role-wrap{display:grid;grid-template-columns:1fr 1fr;gap:18px;width:100%;max-width:560px}
+.role-card{background:rgba(255,255,255,.07);border:2px solid rgba(255,255,255,.12);border-radius:20px;padding:32px 26px;cursor:pointer;transition:all .22s;text-align:center;backdrop-filter:blur(8px)}
+.role-card:hover{transform:translateY(-4px);background:rgba(255,255,255,.13)}
+.role-card .emoji{font-size:44px;display:block;margin-bottom:16px}
+.role-card h3{font-family:'Sora',sans-serif;font-size:18px;font-weight:700;color:#fff;margin-bottom:8px}
+.role-card p{font-size:12.5px;color:rgba(255,255,255,.58);line-height:1.6}
+.rc-admin{border-color:rgba(232,131,42,.45)}
+.rc-admin:hover{border-color:var(--o2)}
+.rc-user{border-color:rgba(76,175,97,.45)}
+.rc-user:hover{border-color:var(--g3)}
+
+/* SETUP / PIN CARD */
+.overlay-screen{position:fixed;inset:0;z-index:9998;overflow-y:auto;background:linear-gradient(150deg,#0f2914,#1a4d24 40%,#2D7A3A);display:none;align-items:center;justify-content:center;padding:36px 16px}
+.card-wrap{background:var(--wh);border-radius:20px;width:480px;max-width:100%;padding:34px 36px;box-shadow:0 32px 80px rgba(0,0,0,.3);animation:up .3s ease}
+.card-logo{display:flex;align-items:center;gap:11px;margin-bottom:22px}
+.card-logo-icon{width:42px;height:42px;background:var(--g2);border-radius:11px;display:flex;align-items:center;justify-content:center;flex-shrink:0}
+.card-logo-name{font-family:'Sora',sans-serif;font-size:18px;font-weight:800;color:var(--g1);line-height:1.1}
+.card-logo-name small{display:block;font-family:'Plus Jakarta Sans',sans-serif;font-size:10.5px;font-weight:500;color:var(--s2);letter-spacing:.5px}
+.card-title{font-family:'Sora',sans-serif;font-size:18px;font-weight:700;margin-bottom:6px}
+.card-desc{font-size:13px;color:var(--s2);line-height:1.65;margin-bottom:18px}
+.fl{font-size:11.5px;font-weight:700;color:var(--s2);letter-spacing:.4px;margin-bottom:5px;display:block}
+.fi{width:100%;border:2px solid var(--s4);border-radius:9px;padding:10px 13px;font-family:'Plus Jakarta Sans',sans-serif;font-size:13.5px;color:var(--tx);outline:none;transition:border-color .2s;margin-bottom:12px;background:var(--wh)}
+.fi:focus{border-color:var(--g2)}
+.fhint{font-size:11.5px;color:var(--s3);margin-top:-8px;margin-bottom:12px;line-height:1.5}
+.serr{background:var(--rbg);border:1px solid var(--r2);border-radius:8px;padding:10px 14px;font-size:13px;color:var(--r2);margin-bottom:12px;display:none;line-height:1.5}
+.sbtn{width:100%;background:var(--g2);color:#fff;border:none;border-radius:9px;padding:13px;font-family:'Plus Jakarta Sans',sans-serif;font-weight:700;font-size:14px;cursor:pointer;transition:background .2s}
+.sbtn:hover:not(:disabled){background:var(--g1)}
+.sbtn:disabled{opacity:.6;cursor:not-allowed}
+.back-link{background:none;border:none;color:var(--s2);font-size:12.5px;cursor:pointer;font-family:'Plus Jakarta Sans',sans-serif;text-decoration:underline;display:block;margin:14px auto 0;text-align:center}
+
+/* PIN */
+.pin-center{text-align:center}
+.pin-logo{width:52px;height:52px;background:var(--g2);border-radius:13px;display:flex;align-items:center;justify-content:center;margin:0 auto 16px}
+.pin-title{font-family:'Sora',sans-serif;font-size:19px;font-weight:700;margin-bottom:5px}
+.pin-sub{font-size:13px;color:var(--s2);margin-bottom:20px;line-height:1.5}
+.pin-dots{display:flex;justify-content:center;gap:14px;margin-bottom:22px}
+.pd{width:15px;height:15px;border-radius:50%;border:2px solid var(--s4);background:transparent;transition:all .2s}
+.pd.on{background:var(--g2);border-color:var(--g2)}
+.pin-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-bottom:12px}
+.pb{background:var(--s5);border:1.5px solid var(--s4);border-radius:10px;padding:14px;font-family:'Plus Jakarta Sans',sans-serif;font-size:18px;font-weight:700;color:var(--tx);cursor:pointer;transition:all .15s}
+.pb:hover{background:var(--gbg);border-color:var(--g3);color:var(--g1)}
+.pb:active{transform:scale(.95)}
+.pb-del{background:var(--rbg);border-color:var(--r2);color:var(--r2)}
+.pb-del:hover{background:#fee2e2}
+.pb-ok{background:var(--g2);border-color:var(--g1);color:#fff}
+.pb-ok:hover{background:var(--g1)}
+.pin-err{font-size:12.5px;color:var(--r2);margin-top:6px;min-height:18px;font-weight:500}
+
+/* HEADER */
+header{background:var(--g2);display:flex;align-items:center;justify-content:space-between;padding:0 26px;height:60px;position:sticky;top:0;z-index:200;box-shadow:0 2px 14px rgba(0,0,0,.16)}
+.lw{display:flex;align-items:center;gap:10px}
+.li{width:35px;height:35px;background:rgba(255,255,255,.14);border-radius:9px;display:flex;align-items:center;justify-content:center;flex-shrink:0}
+.lt{font-family:'Sora',sans-serif;font-weight:800;font-size:17px;color:#fff;letter-spacing:-.3px;line-height:1.1}
+.lt span{color:rgba(255,255,255,.6);font-weight:400;font-size:11px;display:block;letter-spacing:.4px;font-family:'Plus Jakarta Sans',sans-serif}
+.nr{display:flex;align-items:center;gap:8px}
+.mode-badge{padding:4px 11px;border-radius:20px;font-size:11px;font-weight:700;letter-spacing:.5px}
+.mb-admin{background:var(--o2);color:#fff}
+.mb-user{background:rgba(255,255,255,.15);color:#fff}
+.pill{display:flex;align-items:center;gap:6px;background:rgba(255,255,255,.13);border-radius:20px;padding:4px 11px;font-size:11px;color:rgba(255,255,255,.88);font-weight:500}
+.dot{width:7px;height:7px;background:#86efac;border-radius:50%;flex-shrink:0}
+.dot.sp{background:transparent;border:2px solid #86efac;border-top-color:transparent;animation:spin .7s linear infinite}
+.nd{color:rgba(255,255,255,.55);font-size:12px}
+.hib{background:rgba(255,255,255,.12);border:none;border-radius:8px;padding:7px 11px;color:#fff;font-size:14px;cursor:pointer;transition:background .2s;line-height:1}
+.hib:hover{background:rgba(255,255,255,.22)}
+.hib:disabled{opacity:.4;cursor:not-allowed}
+.add-btn{background:var(--o2);color:#fff;border:none;border-radius:8px;padding:7px 15px;font-family:'Plus Jakarta Sans',sans-serif;font-weight:700;font-size:12.5px;cursor:pointer;display:flex;align-items:center;gap:5px;transition:background .2s}
+.add-btn:hover{background:var(--o1)}
+.add-btn:disabled{opacity:.5;cursor:not-allowed}
+.sw-btn{background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.22);border-radius:8px;padding:6px 13px;color:rgba(255,255,255,.85);font-size:11.5px;font-weight:600;cursor:pointer;font-family:'Plus Jakarta Sans',sans-serif;transition:all .2s}
+.sw-btn:hover{background:rgba(255,255,255,.2)}
+
+/* MAIN */
+main{max-width:1480px;margin:0 auto;padding:20px 18px}
+.bn{border-radius:10px;padding:11px 16px;display:none;align-items:center;gap:10px;margin-bottom:14px;font-size:13px;font-weight:500}
+.bn.i{background:var(--bbg);border:1.5px solid var(--b2);color:var(--b1)}.bn.e{background:var(--rbg);border:1.5px solid var(--r2);color:var(--r2)}.bn.on{display:flex}
+.sp2{width:14px;height:14px;border:2px solid rgba(37,99,235,.3);border-top-color:var(--b2);border-radius:50%;animation:spin .8s linear infinite;flex-shrink:0}
+.ro-banner{background:var(--pbg);border:1.5px solid #c4b5fd;border-radius:10px;padding:11px 18px;display:none;align-items:center;gap:10px;margin-bottom:14px;font-size:13px;font-weight:600;color:var(--p1)}
+
+/* STATS */
+.stats{display:grid;grid-template-columns:repeat(6,1fr);gap:11px;margin-bottom:18px}
+.sc2{background:var(--wh);border-radius:var(--rad);padding:14px 16px;box-shadow:var(--sh);border-top:4px solid;transition:transform .15s}
+.sc2:hover{transform:translateY(-2px)}
+.sg{border-color:var(--g2)}.so{border-color:var(--o2)}.sb{border-color:var(--b2)}.sr{border-color:var(--r2)}.sy{border-color:var(--y2)}.sp{border-color:var(--p2)}
+.snum{font-family:'Sora',sans-serif;font-size:28px;font-weight:800;line-height:1}
+.sg .snum{color:var(--g2)}.so .snum{color:var(--o2)}.sb .snum{color:var(--b2)}.sr .snum{color:var(--r2)}.sy .snum{color:var(--y2)}.sp .snum{color:var(--p2)}
+.slbl{font-size:10.5px;color:var(--s2);font-weight:600;letter-spacing:.3px;margin-top:4px}
+
+/* TOOLBAR */
+.toolbar{background:var(--wh);border-radius:var(--rad);padding:11px 15px;box-shadow:var(--sh);margin-bottom:13px;display:flex;align-items:center;gap:9px;flex-wrap:wrap}
+.srch{flex:1;min-width:180px;position:relative}
+.srch input{width:100%;border:1.5px solid var(--s4);border-radius:8px;padding:7px 12px 7px 32px;font-family:'Plus Jakarta Sans',sans-serif;font-size:13px;outline:none;transition:border-color .2s;background:var(--wh)}
+.srch input:focus{border-color:var(--g2)}
+.srch-ic{position:absolute;left:10px;top:50%;transform:translateY(-50%);font-size:13px;color:var(--s3)}
+.toolbar select{border:1.5px solid var(--s4);border-radius:8px;padding:7px 11px;font-family:'Plus Jakarta Sans',sans-serif;font-size:13px;background:var(--wh);color:var(--tx);cursor:pointer;outline:none;transition:border-color .2s}
+.toolbar select:focus{border-color:var(--g2)}
+
+/* TABLE */
+.tw{background:var(--wh);border-radius:var(--rad);box-shadow:var(--sh);overflow-x:auto}
+table{width:100%;border-collapse:collapse;font-size:13px}
+thead tr{background:#f8faf8;border-bottom:2px solid var(--s4)}
+thead th{text-align:left;padding:11px 12px;font-size:10px;font-weight:700;color:var(--s2);letter-spacing:.7px;text-transform:uppercase;white-space:nowrap}
+tbody tr{border-bottom:1px solid var(--s5);transition:background .1s}
+tbody tr:last-child{border-bottom:none}
+tbody tr:hover{background:#f8faf8}
+tbody td{padding:9px 12px;vertical-align:middle}
+.bg{display:inline-block;padding:3px 8px;border-radius:20px;font-size:11px;font-weight:700;white-space:nowrap}
+.bon{background:var(--bbg);color:var(--b1)}.brt{background:var(--obg);color:var(--o1)}
+.bh{background:var(--rbg);color:var(--r1)}.bm{background:var(--ybg);color:var(--y1)}.bl{background:var(--gbg);color:var(--g1)}
+.asgn{display:inline-flex;align-items:center;gap:6px;background:var(--pbg);border:1px solid #ddd6fe;border-radius:20px;padding:3px 10px;font-size:11.5px;font-weight:600;color:var(--p1);white-space:nowrap;max-width:180px}
+.av{width:20px;height:20px;border-radius:50%;background:var(--p2);color:#fff;font-size:9px;font-weight:800;display:flex;align-items:center;justify-content:center;flex-shrink:0}
+.asgn-sub{color:var(--s3);font-weight:400;font-size:10.5px}
+/* status select admin */
+.ss{border:1.5px solid var(--s4);border-radius:7px;padding:5px 8px;font-family:'Plus Jakarta Sans',sans-serif;font-size:11.5px;font-weight:600;cursor:pointer;outline:none;min-width:115px;transition:all .15s}
+.ss.s0{background:var(--obg);color:var(--o1);border-color:var(--o2)}
+.ss.s1{background:var(--bbg);color:var(--b1);border-color:var(--b2)}
+.ss.s2{background:var(--gbg);color:var(--g1);border-color:var(--g3)}
+.ss:disabled{opacity:.5;cursor:wait}
+/* status pill user */
+.sp3{display:inline-block;padding:4px 10px;border-radius:20px;font-size:11.5px;font-weight:700;white-space:nowrap}
+.sp3.s0{background:var(--obg);color:var(--o1)}
+.sp3.s1{background:var(--bbg);color:var(--b1)}
+.sp3.s2{background:var(--gbg);color:var(--g1)}
+.tc{font-weight:600;max-width:155px}.dc{color:var(--s2);max-width:150px;font-size:12px;line-height:1.5}.oc{font-weight:600;font-size:12px;white-space:nowrap}
+.eb{background:var(--bbg);border:1px solid #93c5fd;border-radius:6px;padding:4px 9px;font-size:11.5px;font-weight:600;color:var(--b2);cursor:pointer;transition:all .15s;line-height:1;white-space:nowrap}
+.eb:hover{background:#dbeafe}
+.db{background:none;border:none;cursor:pointer;color:var(--s4);font-size:14px;padding:3px 7px;border-radius:5px;transition:all .15s;line-height:1}
+.db:hover{color:var(--r2);background:var(--rbg)}
+.db:disabled{opacity:.3;cursor:wait}
+.no-rows{text-align:center;padding:52px;color:var(--s3);font-size:15px}
+
+/* MODAL */
+.ov{display:none;position:fixed;inset:0;background:rgba(0,0,0,.45);z-index:500;align-items:center;justify-content:center;backdrop-filter:blur(3px)}
+.ov.on{display:flex}
+.mo{background:var(--wh);border-radius:18px;width:700px;max-width:96vw;max-height:93vh;overflow-y:auto;box-shadow:0 24px 70px rgba(0,0,0,.22);animation:up .2s ease}
+.mh{background:linear-gradient(120deg,var(--g1),var(--g2));padding:18px 22px;border-radius:18px 18px 0 0;display:flex;align-items:center;justify-content:space-between}
+.mh h2{font-family:'Sora',sans-serif;font-size:16px;font-weight:700;color:#fff}
+.mx{background:rgba(255,255,255,.18);border:none;border-radius:50%;width:29px;height:29px;cursor:pointer;color:#fff;font-size:15px;line-height:29px;text-align:center;transition:background .15s}
+.mx:hover{background:rgba(255,255,255,.3)}
+.mb2{padding:20px 22px}
+.sec-lbl{font-size:10.5px;font-weight:700;color:var(--s3);letter-spacing:.8px;text-transform:uppercase;margin:16px 0 10px;padding-bottom:6px;border-bottom:1px solid var(--s5)}
+.sec-lbl:first-child{margin-top:0}
+.fg{display:grid;grid-template-columns:1fr 1fr;gap:13px}
+.fg .g{display:flex;flex-direction:column;gap:4px}
+.fg .g.f{grid-column:1/-1}
+.fg label{font-size:11px;font-weight:700;color:var(--s2);letter-spacing:.5px}
+.fg input,.fg select,.fg textarea{border:1.5px solid var(--s4);border-radius:8px;padding:8px 11px;font-family:'Plus Jakarta Sans',sans-serif;font-size:13px;color:var(--tx);background:var(--wh);outline:none;transition:border-color .2s;resize:none}
+.fg input:focus,.fg select:focus,.fg textarea:focus{border-color:var(--g2)}
+.mf{padding:13px 22px;border-top:1px solid var(--s5);display:flex;gap:8px;justify-content:flex-end}
+.bc{background:var(--s5);border:none;border-radius:8px;padding:8px 16px;font-family:'Plus Jakarta Sans',sans-serif;font-weight:600;font-size:13px;color:var(--s1);cursor:pointer;transition:background .15s}
+.bc:hover{background:var(--s4)}
+.bsv{background:var(--g2);border:none;border-radius:8px;padding:8px 20px;font-family:'Plus Jakarta Sans',sans-serif;font-weight:700;font-size:13px;color:#fff;cursor:pointer;display:flex;align-items:center;gap:6px;transition:background .15s}
+.bsv:hover{background:var(--g1)}
+.bsv:disabled{opacity:.6;cursor:not-allowed}
+
+/* SAVE BAR */
+.save-bar{position:fixed;bottom:20px;left:50%;transform:translateX(-50%) translateY(60px);background:#1f2937;color:#fff;border-radius:9px;padding:9px 18px;font-size:12.5px;font-weight:600;box-shadow:0 4px 20px rgba(0,0,0,.2);z-index:1000;transition:transform .25s;white-space:nowrap}
+.save-bar.show{transform:translateX(-50%) translateY(0)}
+.save-bar.ok{background:var(--g1)}.save-bar.err{background:var(--r2)}.save-bar.inf{background:var(--b2)}
+
+footer{text-align:center;padding:22px 0 16px;color:var(--s3);font-size:11.5px}
+footer a{color:var(--g2);text-decoration:none}
+footer a:hover{text-decoration:underline}
+</style>
+</head>
+<body>
+
+<!-- ROLE SCREEN -->
+<div id="roleScreen">
+  <div class="brand-top">
+    <div class="brand-icon">
+      <svg viewBox="0 0 32 32" fill="none" width="34" height="34"><circle cx="16" cy="16" r="15" fill="rgba(255,255,255,.1)"/><path d="M16 5C10 5 7 10 7 15c0 5 3 10 9 12 6-2 9-7 9-12 0-5-3-10-9-10Z" fill="#a7f3d0"/><path d="M16 8s-4 4-4 8 2 8 4 10c2-2 4-6 4-10S16 8 16 8Z" fill="white" opacity=".9"/><path d="M16 12v14M13 15l3-2 3 2" stroke="#2D7A3A" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round"/></svg>
+    </div>
+    <div class="brand-name">ALPINO<small>RETURNS &amp; ISSUES TRACKER</small></div>
+  </div>
+  <div class="role-wrap">
+    <div class="role-card rc-admin" onclick="selectRole('admin')">
+      <span class="emoji">🔐</span>
+      <h3>Admin Panel</h3>
+      <p>Full access — add, edit, delete issues, assign responsible persons, update status. PIN protected.</p>
+    </div>
+    <div class="role-card rc-user" onclick="selectRole('user')">
+      <span class="emoji">👁️</span>
+      <h3>User View</h3>
+      <p>Read-only — see all live issues, assignees and status. Nothing can be changed.</p>
+    </div>
+  </div>
+</div>
+
+<!-- GITHUB SETUP -->
+<div id="setupScreen" class="overlay-screen">
+  <div class="card-wrap">
+    <div class="card-logo">
+      <div class="card-logo-icon"><svg viewBox="0 0 32 32" fill="none" width="24" height="24"><circle cx="16" cy="16" r="15" fill="#1a4d24"/><path d="M16 5C10 5 7 10 7 15c0 5 3 10 9 12 6-2 9-7 9-12 0-5-3-10-9-10Z" fill="#4CAF61"/><path d="M16 8s-4 4-4 8 2 8 4 10c2-2 4-6 4-10S16 8 16 8Z" fill="white" opacity=".9"/></svg></div>
+      <div class="card-logo-name">ALPINO <small>GITHUB CONNECT</small></div>
+    </div>
+    <div class="card-title">Connect to GitHub</div>
+    <p class="card-desc">Enter your GitHub details to enable data sync. Token stored only in this browser.</p>
+    <label class="fl">GITHUB USERNAME</label>
+    <input class="fi" id="cfgOwner" type="text" placeholder="e.g. yuvraj" autocomplete="off" spellcheck="false">
+    <label class="fl">REPOSITORY NAME</label>
+    <input class="fi" id="cfgRepo" type="text" value="alpino-dashboard" autocomplete="off" spellcheck="false">
+    <label class="fl">PERSONAL ACCESS TOKEN</label>
+    <input class="fi" id="cfgToken" type="password" placeholder="ghp_xxxxxxxxxxxxxxxxxxxxxxxxxxxx" autocomplete="off">
+    <p class="fhint">🔒 Required for Admin (read+write). For User view with a public repo, can be left blank.</p>
+    <div class="serr" id="sErr"></div>
+    <button class="sbtn" id="sBtn" onclick="doSetup()"><span id="sBtnTxt">Connect &amp; Continue →</span></button>
+    <button class="back-link" onclick="goBack()">← Back to role selection</button>
+  </div>
+</div>
+
+<!-- PIN SCREEN -->
+<div id="pinScreen" class="overlay-screen">
+  <div class="card-wrap" style="max-width:340px">
+    <div class="pin-center">
+      <div class="pin-logo"><svg viewBox="0 0 32 32" fill="none" width="26" height="26"><circle cx="16" cy="16" r="15" fill="#1a4d24"/><path d="M16 5C10 5 7 10 7 15c0 5 3 10 9 12 6-2 9-7 9-12 0-5-3-10-9-10Z" fill="#4CAF61"/><path d="M16 8s-4 4-4 8 2 8 4 10c2-2 4-6 4-10S16 8 16 8Z" fill="white" opacity=".9"/></svg></div>
+      <div class="pin-title" id="pinTitle">Admin PIN</div>
+      <div class="pin-sub" id="pinSub">Enter your 4-digit PIN</div>
+      <div class="pin-dots">
+        <div class="pd" id="pd0"></div><div class="pd" id="pd1"></div>
+        <div class="pd" id="pd2"></div><div class="pd" id="pd3"></div>
+      </div>
+      <div class="pin-grid">
+        <button class="pb" onclick="pp('1')">1</button><button class="pb" onclick="pp('2')">2</button><button class="pb" onclick="pp('3')">3</button>
+        <button class="pb" onclick="pp('4')">4</button><button class="pb" onclick="pp('5')">5</button><button class="pb" onclick="pp('6')">6</button>
+        <button class="pb" onclick="pp('7')">7</button><button class="pb" onclick="pp('8')">8</button><button class="pb" onclick="pp('9')">9</button>
+        <button class="pb pb-del" onclick="pd()">⌫</button><button class="pb" onclick="pp('0')">0</button><button class="pb pb-ok" onclick="pe()">✓</button>
+      </div>
+      <div class="pin-err" id="pinErr"></div>
+      <button class="back-link" onclick="goBack()">← Back to role selection</button>
+    </div>
+  </div>
+</div>
+
+<!-- HEADER -->
+<header id="mainHeader" style="display:none">
+  <div class="lw">
+    <div class="li"><svg viewBox="0 0 32 32" fill="none" width="21" height="21"><circle cx="16" cy="16" r="15" fill="rgba(255,255,255,.15)"/><path d="M16 5C10 5 7 10 7 15c0 5 3 10 9 12 6-2 9-7 9-12 0-5-3-10-9-10Z" fill="#a7f3d0"/><path d="M16 8s-4 4-4 8 2 8 4 10c2-2 4-6 4-10S16 8 16 8Z" fill="white" opacity=".9"/><path d="M16 12v14M13 15l3-2 3 2" stroke="#2D7A3A" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
+    <div class="lt">ALPINO <span>RETURNS &amp; ISSUES TRACKER</span></div>
+  </div>
+  <div class="nr">
+    <span class="mode-badge" id="modeBadge"></span>
+    <div class="pill"><div class="dot" id="syncDot"></div><span id="syncLbl">GitHub Live</span></div>
+    <span class="nd" id="hDate"></span>
+    <button class="hib" id="btnRef" onclick="loadData()" title="Refresh">↻</button>
+    <button class="hib" onclick="resetAll()" title="Settings / Disconnect">⚙</button>
+    <button class="add-btn" id="btnAdd" onclick="openModal()" style="display:none">＋ Add Issue</button>
+    <button class="sw-btn" onclick="goBack()">Switch Role</button>
+  </div>
+</header>
+
+<!-- MAIN -->
+<div id="mainContent" style="display:none">
+<main>
+  <div class="bn i" id="bnL"><div class="sp2"></div><span id="bnLT">Loading…</span></div>
+  <div class="bn e" id="bnE">⚠️ <span id="bnET"></span></div>
+  <div class="ro-banner" id="roBanner">👁️ <strong>View-Only Mode</strong> &nbsp;— Data is live from GitHub. Editing is disabled for this role.</div>
+
+  <div class="stats">
+    <div class="sc2 sg"><div class="snum" id="sTot">—</div><div class="slbl">Total Issues</div></div>
+    <div class="sc2 so"><div class="snum" id="sNS">—</div><div class="slbl">Not Started</div></div>
+    <div class="sc2 sb"><div class="snum" id="sIP">—</div><div class="slbl">In Progress</div></div>
+    <div class="sc2 sy"><div class="snum" id="sDn">—</div><div class="slbl">Done</div></div>
+    <div class="sc2 sr"><div class="snum" id="sHi">—</div><div class="slbl">High Severity</div></div>
+    <div class="sc2 sp"><div class="snum" id="sAs">—</div><div class="slbl">Assigned</div></div>
+  </div>
+
+  <div class="toolbar">
+    <div class="srch"><span class="srch-ic">🔍</span><input type="text" id="qS" placeholder="Search title, description, assignee…" oninput="render()"></div>
+    <select id="qD" onchange="render()"><option value="">All Departments</option><option>Online</option><option>Return</option></select>
+    <select id="qSv" onchange="render()"><option value="">All Severities</option><option value="High">High</option><option value="Med">Med</option><option value="Low">Low</option></select>
+    <select id="qSt" onchange="render()"><option value="">All Statuses</option><option value="Not Started">Not Started</option><option value="In Progress">In Progress</option><option value="Done">Done</option></select>
+    <select id="qOw" onchange="render()"><option value="">All Teams</option><option>Ops Team</option><option>A/c Team</option><option>Tech Team</option><option>Logistics Team</option><option>Management</option></select>
+  </div>
+
+  <div class="tw">
+    <table>
+      <thead><tr>
+        <th>#</th><th>Dept</th><th>Problem Title</th><th>Description</th><th>Root Cause</th>
+        <th>Sev</th><th>Freq</th><th>Responsible Person</th><th>Team</th><th>Status</th>
+        <th>Suggested Fix</th><th id="actHdr"></th>
+      </tr></thead>
+      <tbody id="tbody"></tbody>
+    </table>
+    <div class="no-rows" id="noRows" style="display:none">No issues match your filters.</div>
+  </div>
+</main>
+<footer>© 2025 Alpino Health Foods &nbsp;·&nbsp; <a id="ghLink" href="#" target="_blank">View on GitHub ↗</a></footer>
+</div>
+
+<!-- ADD/EDIT MODAL -->
+<div class="ov" id="ov" onclick="ovCk(event)">
+  <div class="mo">
+    <div class="mh"><h2 id="modalTitle">Add New Issue</h2><button class="mx" onclick="closeModal()">✕</button></div>
+    <div class="mb2">
+      <div class="sec-lbl">📋 Issue Details</div>
+      <div class="fg">
+        <div class="g"><label>DEPARTMENT *</label><select id="fDept"><option>Online</option><option>Return</option></select></div>
+        <div class="g"><label>SEVERITY *</label><select id="fSev"><option value="High">High</option><option value="Med">Medium</option><option value="Low">Low</option></select></div>
+        <div class="g f"><label>PROBLEM TITLE *</label><input type="text" id="fTitle" placeholder="Clear, concise title for the issue"></div>
+        <div class="g f"><label>DETAILED DESCRIPTION</label><textarea id="fDesc" rows="3" placeholder="Describe the problem in detail…"></textarea></div>
+        <div class="g f"><label>ROOT CAUSE</label><textarea id="fRoot" rows="2" placeholder="What is causing this issue?"></textarea></div>
+        <div class="g f"><label>IMPACT (CUSTOMER / BUSINESS)</label><textarea id="fImpact" rows="2" placeholder="How does this affect customers or business?"></textarea></div>
+        <div class="g"><label>FREQUENCY</label><select id="fFreq"><option>High</option><option>Daily</option><option>Medium</option><option>Weekly</option><option>Low</option></select></div>
+        <div class="g"><label>STATUS</label><select id="fStatus"><option value="Not Started">Not Started</option><option value="In Progress">In Progress</option><option value="Done">Done</option></select></div>
+        <div class="g f"><label>SUGGESTED SOLUTION</label><textarea id="fSol" rows="2" placeholder="Proposed fix or action…"></textarea></div>
+        <div class="g f"><label>EXAMPLE CASE / REFERENCE</label><input type="text" id="fExample" placeholder="Optional reference or ticket number"></div>
+      </div>
+      <div class="sec-lbl">👤 Responsible Person</div>
+      <div class="fg">
+        <div class="g"><label>FULL NAME *</label><input type="text" id="fAName" placeholder="e.g. Rahul Sharma"></div>
+        <div class="g"><label>DEPARTMENT / ROLE</label><input type="text" id="fADept" placeholder="e.g. Operations, Accounts…"></div>
+        <div class="g"><label>OWNER TEAM</label><select id="fOwner"><option>Ops Team</option><option>A/c Team</option><option>Tech Team</option><option>Logistics Team</option><option>Management</option></select></div>
+        <div class="g"><label>CONTACT (PHONE / EMAIL)</label><input type="text" id="fAContact" placeholder="Optional — phone or email"></div>
+      </div>
+    </div>
+    <div class="mf">
+      <button class="bc" onclick="closeModal()">Cancel</button>
+      <button class="bsv" id="btnSave" onclick="saveIssue()"><span id="saveLbl">Save to GitHub</span></button>
+    </div>
+  </div>
+</div>
+
+<div class="save-bar" id="saveBar"></div>
+
+<script>
+// ── STATE ──────────────────────────────────────────────────────────────
+let CFG      = JSON.parse(localStorage.getItem('alpino_cfg')||'null');
+let ROLE     = '';
+let PIN_HASH = localStorage.getItem('alpino_pin')||'';
+let issues   = [], fileSHA='', busy=false, editId=null;
+let pinBuf   = '', pinMode='';
+
+// ── HELPERS ────────────────────────────────────────────────────────────
+function $id(id){ return document.getElementById(id); }
+function show(id){ $id(id).style.display='flex'; }
+function hide(id){ $id(id).style.display='none'; }
+function esc(s){ return (!s||s==='—')?'—':String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
+function uid(){ return Date.now().toString(36)+Math.random().toString(36).slice(2,6); }
+function stCls(s){ return s==='In Progress'?'s1':s==='Done'?'s2':'s0'; }
+let barTm;
+function bar(msg,type=''){
+  const el=$id('saveBar'); el.textContent=msg; el.className='save-bar '+type+' show';
+  clearTimeout(barTm); barTm=setTimeout(()=>el.classList.remove('show'),3500);
+}
+
+// ── ROLE SELECTION ────────────────────────────────────────────────────
+function selectRole(role){
+  ROLE=role;
+  if(!CFG){ hide('roleScreen'); $id('setupScreen').style.display='flex'; return; }
+  if(role==='admin'){
+    hide('roleScreen');
+    $id('pinScreen').style.display='flex';
+    if(!PIN_HASH){
+      pinMode='set'; $id('pinTitle').textContent='Set Admin PIN';
+      $id('pinSub').textContent='Create a 4-digit PIN to protect the admin panel';
+    } else {
+      pinMode='verify'; $id('pinTitle').textContent='Admin PIN';
+      $id('pinSub').textContent='Enter your 4-digit PIN to continue';
+    }
+  } else {
+    launchDash('user');
+  }
+}
+
+function goBack(){
+  ['pinScreen','setupScreen','mainContent'].forEach(id=>hide(id));
+  $id('mainHeader').style.display='none';
+  show('roleScreen');
+  pinBuf=''; updateDots(); $id('pinErr').textContent='';
+}
+
+// ── PIN LOGIC ─────────────────────────────────────────────────────────
+function pp(d){ if(pinBuf.length>=4)return; pinBuf+=d; updateDots(); if(pinBuf.length===4&&pinMode==='verify')pe(); }
+function pd(){ pinBuf=pinBuf.slice(0,-1); updateDots(); $id('pinErr').textContent=''; }
+function updateDots(){ for(let i=0;i<4;i++) $id('pd'+i).className='pd'+(i<pinBuf.length?' on':''); }
+async function hashPin(p){ const b=new TextEncoder().encode(p+'alpino2025'); const h=await crypto.subtle.digest('SHA-256',b); return Array.from(new Uint8Array(h)).map(x=>x.toString(16).padStart(2,'0')).join(''); }
+async function pe(){
+  if(pinBuf.length<4){$id('pinErr').textContent='Enter all 4 digits.';return;}
+  const h=await hashPin(pinBuf);
+  if(pinMode==='set'){ localStorage.setItem('alpino_pin',h); PIN_HASH=h; hide($id('pinScreen').id); launchDash('admin'); }
+  else if(h===PIN_HASH){ hide($id('pinScreen').id); launchDash('admin'); }
+  else { $id('pinErr').textContent='Incorrect PIN. Try again.'; pinBuf=''; updateDots(); }
+}
+
+// ── GITHUB SETUP ──────────────────────────────────────────────────────
+async function doSetup(){
+  const owner=$id('cfgOwner').value.trim(), repo=$id('cfgRepo').value.trim(), token=$id('cfgToken').value.trim();
+  $id('sErr').style.display='none';
+  if(!owner||!repo){showSErr('Please fill in username and repository name.');return;}
+  if(ROLE==='admin'&&!token){showSErr('Admin requires a Personal Access Token.');return;}
+  const btn=$id('sBtn'); $id('sBtnTxt').textContent='Connecting…'; btn.disabled=true;
+  try{
+    const h={Accept:'application/vnd.github+json'};
+    if(token)h.Authorization='Bearer '+token;
+    const res=await fetch(`https://api.github.com/repos/${owner}/${repo}/contents/data.json`,{headers:h});
+    if(!res.ok){const d=await res.json().catch(()=>({}));throw new Error(d.message||'HTTP '+res.status);}
+    const r=await res.json();
+    CFG={owner,repo,token}; localStorage.setItem('alpino_cfg',JSON.stringify(CFG));
+    fileSHA=r.sha; issues=JSON.parse(atob(r.content.replace(/\n/g,''))).issues||[];
+    $id('setupScreen').style.display='none';
+    if(ROLE==='admin'){
+      $id('pinScreen').style.display='flex';
+      if(!PIN_HASH){pinMode='set';$id('pinTitle').textContent='Set Admin PIN';$id('pinSub').textContent='Create a 4-digit PIN to protect admin panel';}
+      else{pinMode='verify';$id('pinTitle').textContent='Admin PIN';$id('pinSub').textContent='Enter your 4-digit PIN';}
+    } else { launchDash('user'); }
+  }catch(e){ showSErr('Could not connect: '+e.message); btn.disabled=false; $id('sBtnTxt').textContent='Connect & Continue →'; }
+}
+function showSErr(m){const el=$id('sErr');el.textContent=m;el.style.display='block';}
+
+// ── LAUNCH DASHBOARD ──────────────────────────────────────────────────
+function launchDash(role){
+  ROLE=role;
+  ['roleScreen','pinScreen','setupScreen'].forEach(id=>hide(id));
+  $id('mainHeader').style.display='flex'; $id('mainContent').style.display='block';
+  const isAdmin=role==='admin';
+  $id('modeBadge').textContent=isAdmin?'🔐 ADMIN':'👁 VIEW ONLY';
+  $id('modeBadge').className='mode-badge '+(isAdmin?'mb-admin':'mb-user');
+  $id('btnAdd').style.display=isAdmin?'flex':'none';
+  $id('actHdr').textContent=isAdmin?'Actions':'';
+  $id('roBanner').style.display=isAdmin?'none':'flex';
+  $id('hDate').textContent=new Date().toLocaleDateString('en-IN',{day:'2-digit',month:'short',year:'numeric'});
+  if(CFG)$id('ghLink').href=`https://github.com/${CFG.owner}/${CFG.repo}/blob/main/data.json`;
+  if(issues.length>0){render();return;}
+  loadData();
+}
+
+// ── GITHUB API ────────────────────────────────────────────────────────
+function ghH(){
+  const h={Accept:'application/vnd.github+json','Content-Type':'application/json'};
+  if(CFG?.token)h.Authorization='Bearer '+CFG.token;
+  return h;
+}
+function apiUrl(){return `https://api.github.com/repos/${CFG.owner}/${CFG.repo}/contents/data.json`;}
+
+async function loadData(){
+  if(busy)return; busy=true; setSy(true,'Loading from GitHub…'); hideErr();
+  try{
+    const res=await fetch(apiUrl(),{headers:ghH()});
+    if(!res.ok){const d=await res.json();throw new Error(d.message||'HTTP '+res.status);}
+    const r=await res.json();
+    fileSHA=r.sha; issues=JSON.parse(atob(r.content.replace(/\n/g,''))).issues||[];
+    render(); bar('✔ Synced — '+issues.length+' issues','ok');
+  }catch(e){showErr(e.message);if(issues.length)render();}
+  finally{setSy(false);busy=false;}
+}
+
+async function persist(msg){
+  const content=btoa(unescape(encodeURIComponent(JSON.stringify({issues,lastUpdated:new Date().toISOString()},null,2))));
+  bar('⏳ Saving to GitHub…','inf');
+  const res=await fetch(apiUrl(),{method:'PUT',headers:ghH(),body:JSON.stringify({message:'Update issues — '+new Date().toISOString(),content,sha:fileSHA})});
+  if(!res.ok){const d=await res.json().catch(()=>({}));if(res.status===409)throw new Error('Conflict — refresh first.');throw new Error(d.message||'Save failed');}
+  const d=await res.json(); fileSHA=d.content.sha; bar('✔ '+msg,'ok');
+}
+
+// ── RENDER ────────────────────────────────────────────────────────────
+function render(){
+  const q=$id('qS').value.toLowerCase(),qD=$id('qD').value,qSv=$id('qSv').value,qSt=$id('qSt').value,qOw=$id('qOw').value;
+  const rows=issues.filter(i=>
+    (!q||[i.title,i.desc,i.owner,i.root,i.aName||'',i.aDept||''].join(' ').toLowerCase().includes(q))&&
+    (!qD||i.dept===qD)&&(!qSv||i.sev===qSv)&&(!qSt||i.status===qSt)&&(!qOw||i.owner===qOw)
+  );
+  const tbody=$id('tbody'); tbody.innerHTML='';
+  $id('noRows').style.display=rows.length?'none':'block';
+  const isAdmin=ROLE==='admin';
+  const stLbl=s=>s==='In Progress'?'🔵 In Progress':s==='Done'?'🟢 Done':'🟠 Not Started';
+
+  rows.forEach((iss,idx)=>{
+    const dc=iss.dept==='Online'?'bon':'brt';
+    const sc=iss.sev==='High'?'bh':iss.sev==='Med'?'bm':'bl';
+    const st=stCls(iss.status);
+    const initials=(iss.aName||'?').split(' ').map(w=>w[0]).join('').slice(0,2).toUpperCase();
+    const aCell=iss.aName
+      ?`<div class="asgn"><div class="av">${initials}</div><span>${esc(iss.aName)}</span>${iss.aDept?`<span class="asgn-sub">· ${esc(iss.aDept)}</span>`:''}</div>`
+      :`<span style="color:var(--s4);font-size:12px">—</span>`;
+    const statusCell=isAdmin
+      ?`<select class="ss ${st}" data-id="${iss.id}" onchange="chSt(this)"><option value="Not Started" ${iss.status==='Not Started'?'selected':''}>🟠 Not Started</option><option value="In Progress" ${iss.status==='In Progress'?'selected':''}>🔵 In Progress</option><option value="Done" ${iss.status==='Done'?'selected':''}>🟢 Done</option></select>`
+      :`<span class="sp3 ${st}">${stLbl(iss.status)}</span>`;
+    const actCell=isAdmin
+      ?`<td style="white-space:nowrap"><button class="eb" onclick="openEdit('${iss.id}')">✏ Edit</button> <button class="db" data-id="${iss.id}" onclick="delI(this)">🗑</button></td>`
+      :`<td></td>`;
+    const tr=document.createElement('tr');
+    tr.innerHTML=`<td style="font-weight:700;color:var(--s3);font-size:11px">${idx+1}</td><td><span class="bg ${dc}">${esc(iss.dept)}</span></td><td class="tc">${esc(iss.title)}</td><td class="dc">${esc(iss.desc)}</td><td class="dc">${esc(iss.root)}</td><td><span class="bg ${sc}">${esc(iss.sev)}</span></td><td style="font-size:11.5px;color:var(--s2)">${esc(iss.freq)}</td><td>${aCell}</td><td class="oc">${esc(iss.owner)}</td><td>${statusCell}</td><td class="dc">${esc(iss.sol)}</td>${actCell}`;
+    tbody.appendChild(tr);
+  });
+  updStats();
+}
+
+function updStats(){
+  $id('sTot').textContent=issues.length;
+  $id('sNS').textContent=issues.filter(i=>i.status==='Not Started').length;
+  $id('sIP').textContent=issues.filter(i=>i.status==='In Progress').length;
+  $id('sDn').textContent=issues.filter(i=>i.status==='Done').length;
+  $id('sHi').textContent=issues.filter(i=>i.sev==='High').length;
+  $id('sAs').textContent=issues.filter(i=>i.aName).length;
+}
+
+// ── STATUS CHANGE ─────────────────────────────────────────────────────
+async function chSt(sel){
+  if(ROLE!=='admin')return;
+  const id=sel.dataset.id,val=sel.value; sel.disabled=true;
+  const iss=issues.find(i=>i.id===id),old=iss?.status;
+  if(iss)iss.status=val; updStats(); sel.className='ss '+stCls(val);
+  try{await persist('Status saved');}
+  catch(e){if(iss)iss.status=old;updStats();bar('✖ '+e.message,'err');if(e.message.includes('Conflict'))setTimeout(loadData,1500);}
+  finally{sel.disabled=false;}
+}
+
+// ── DELETE ────────────────────────────────────────────────────────────
+async function delI(btn){
+  if(ROLE!=='admin')return;
+  if(!confirm('Permanently remove this issue?'))return;
+  const id=btn.dataset.id; btn.disabled=true;
+  const prev=[...issues]; issues=issues.filter(i=>i.id!==id); render();
+  try{await persist('Issue deleted');}
+  catch(e){issues=prev;render();bar('✖ '+e.message,'err');btn.disabled=false;}
+}
+
+// ── MODAL ─────────────────────────────────────────────────────────────
+function openModal(){ editId=null; $id('modalTitle').textContent='➕ Add New Issue'; clearForm(); $id('ov').classList.add('on'); }
+function closeModal(){ $id('ov').classList.remove('on'); editId=null; }
+function ovCk(e){ if(e.target===$id('ov'))closeModal(); }
+function clearForm(){
+  ['fTitle','fDesc','fRoot','fImpact','fSol','fExample','fAName','fADept','fAContact'].forEach(id=>$id(id).value='');
+  $id('fDept').value='Online';$id('fSev').value='High';$id('fFreq').value='High';
+  $id('fOwner').value='Ops Team';$id('fStatus').value='Not Started';
+}
+function openEdit(id){
+  editId=id; const iss=issues.find(i=>i.id===id); if(!iss)return;
+  $id('modalTitle').textContent='✏️ Edit Issue';
+  $id('fDept').value  =iss.dept||'Online'; $id('fSev').value=iss.sev||'High';
+  $id('fTitle').value =iss.title||''; $id('fDesc').value=iss.desc==='—'?'':(iss.desc||'');
+  $id('fRoot').value  =iss.root==='—'?'':(iss.root||''); $id('fImpact').value=iss.impact==='—'?'':(iss.impact||'');
+  $id('fFreq').value  =iss.freq||'High'; $id('fStatus').value=iss.status||'Not Started';
+  $id('fSol').value   =iss.sol==='—'?'':(iss.sol||''); $id('fExample').value=iss.example==='—'?'':(iss.example||'');
+  $id('fOwner').value =iss.owner||'Ops Team';
+  $id('fAName').value =iss.aName||''; $id('fADept').value=iss.aDept||''; $id('fAContact').value=iss.aContact||'';
+  $id('ov').classList.add('on');
+}
+
+async function saveIssue(){
+  if(ROLE!=='admin')return;
+  const title=$id('fTitle').value.trim(); if(!title){alert('Please enter a Problem Title.');return;}
+  const btn=$id('btnSave'); btn.disabled=true; $id('saveLbl').textContent='Saving…';
+  const rec={
+    id:editId||uid(), dept:$id('fDept').value, title,
+    desc:$id('fDesc').value||'—', root:$id('fRoot').value||'—', impact:$id('fImpact').value||'—',
+    freq:$id('fFreq').value, sev:$id('fSev').value, owner:$id('fOwner').value,
+    status:$id('fStatus').value, sol:$id('fSol').value||'—', example:$id('fExample').value||'—',
+    aName:$id('fAName').value.trim()||'', aDept:$id('fADept').value.trim()||'', aContact:$id('fAContact').value.trim()||'',
+    createdAt:editId?(issues.find(i=>i.id===editId)?.createdAt||new Date().toISOString().slice(0,10)):new Date().toISOString().slice(0,10),
+    updatedAt:new Date().toISOString().slice(0,10),
+  };
+  if(editId){const idx=issues.findIndex(i=>i.id===editId);if(idx>=0)issues[idx]=rec;}
+  else issues.unshift(rec);
+  try{ await persist(editId?'Issue updated!':'New issue saved!'); closeModal(); render(); }
+  catch(e){ if(!editId)issues.shift(); bar('✖ Save failed: '+e.message,'err'); }
+  finally{ btn.disabled=false; $id('saveLbl').textContent='Save to GitHub'; }
+}
+
+// ── UI STATE ──────────────────────────────────────────────────────────
+function resetAll(){if(!confirm('Disconnect and go back to role selection?'))return;goBack();}
+function setSy(on,msg=''){
+  $id('syncDot').className=on?'dot sp':'dot'; $id('syncLbl').textContent=on?'Syncing…':'GitHub Live';
+  const bl=$id('bnL'); $id('bnLT').textContent=msg; bl.className='bn i'+(on?' on':'');
+  if(ROLE==='admin'){const ba=$id('btnAdd');if(ba)ba.disabled=on;}
+  const br=$id('btnRef');if(br)br.disabled=on;
+}
+function showErr(m){$id('bnET').textContent=m;$id('bnE').className='bn e on';}
+function hideErr(){$id('bnE').className='bn e';}
+
+// ── BOOT ──────────────────────────────────────────────────────────────
+show('roleScreen');
+</script>
+</body>
+</html>
