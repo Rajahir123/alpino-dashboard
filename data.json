@@ -106,13 +106,13 @@
       "sev": "Low",
       "owner": "Ops Team",
       "status": "Not Started",
-      "sol": "Ã¢ÂÂ",
-      "example": "Ã¢ÂÂ",
+      "sol": "—",
+      "example": "—",
       "aName": "",
       "aDept": "",
       "aContact": "",
       "createdAt": "2025-04-06",
-      "updatedAt": "2025-04-06"
+      "updatedAt": "2026-04-06"
     },
     {
       "id": "007",
@@ -134,5 +134,5 @@
       "updatedAt": "2025-04-06"
     }
   ],
-  "lastUpdated": "2026-04-06T13:44:46.912Z"
+  "lastUpdated": "2026-04-06T13:44:57.833Z"
 }
