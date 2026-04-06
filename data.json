@@ -99,7 +99,7 @@
       "id": "006",
       "dept": "Return",
       "title": "B2B Bill Entry",
-      "desc": "Ã¢ÂÂ",
+      "desc": "—",
       "root": "Ã¢ÂÂ",
       "impact": "Ã¢ÂÂ",
       "freq": "Low",
@@ -134,5 +134,5 @@
       "updatedAt": "2026-04-06"
     }
   ],
-  "lastUpdated": "2026-04-06T13:45:13.401Z"
+  "lastUpdated": "2026-04-06T13:45:21.192Z"
 }
