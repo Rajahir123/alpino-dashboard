@@ -1,0 +1,234 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Alpino - Returns &amp; Issues Dashboard</title>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=Sora:wght@600;700;800&display=swap" rel="stylesheet">
+<style>
+:root{--g1:#1a4d24;--g2:#2D7A3A;--g3:#4CAF61;--gbg:#eaf5ec;--o1:#a85510;--o2:#E8832A;--obg:#fff2e5;--r1:#991b1b;--r2:#dc2626;--rbg:#fef2f2;--y1:#92400e;--y2:#d97706;--ybg:#fffbeb;--b1:#1e3a8a;--b2:#2563eb;--bbg:#eff6ff;--s1:#374151;--s2:#6b7280;--s3:#9ca3af;--s4:#d1d5db;--s5:#f9fafb;--wh:#fff;--tx:#111827;--rad:12px;--sh:0 1px 10px rgba(0,0,0,.06)}
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:'Plus Jakarta Sans',sans-serif;background:#edf1ee;color:var(--tx);min-height:100vh}
+#setup{position:fixed;inset:0;z-index:9999;overflow-y:auto;background:linear-gradient(150deg,#0f2914,#1a4d24 45%,#2D7A3A);display:flex;align-items:flex-start;justify-content:center;padding:40px 16px}
+.sc{background:var(--wh);border-radius:20px;width:540px;max-width:100%;padding:36px 38px;box-shadow:0 32px 80px rgba(0,0,0,.3);animation:up .3s ease}
+@keyframes up{from{opacity:0;transform:translateY(14px)}to{opacity:1;transform:none}}
+.slogo{display:flex;align-items:center;gap:12px;margin-bottom:24px}
+.sli{width:44px;height:44px;background:var(--g2);border-radius:11px;display:flex;align-items:center;justify-content:center;flex-shrink:0}
+.slt{font-family:'Sora',sans-serif;font-size:20px;font-weight:800;color:var(--g1);line-height:1.1}
+.slt small{display:block;font-family:'Plus Jakarta Sans',sans-serif;font-size:10.5px;font-weight:500;color:var(--s2);letter-spacing:.5px}
+.sc h2{font-family:'Sora',sans-serif;font-size:18px;font-weight:700;margin-bottom:6px}
+.sc>.desc{font-size:13.5px;color:var(--s2);line-height:1.65;margin-bottom:20px}
+.tip{background:var(--ybg);border:1px solid var(--y2);border-radius:8px;padding:10px 14px;font-size:12.5px;color:var(--y1);margin-bottom:16px;line-height:1.6}
+.tip strong{color:#7c2d12}
+.fl{font-size:11.5px;font-weight:700;color:var(--s2);letter-spacing:.4px;margin-bottom:5px}
+.fi{width:100%;border:2px solid var(--s4);border-radius:9px;padding:10px 13px;font-family:'Plus Jakarta Sans',sans-serif;font-size:13.5px;color:var(--tx);outline:none;transition:border-color .2s;margin-bottom:12px}
+.fi:focus{border-color:var(--g2)}
+.serr{background:var(--rbg);border:1px solid var(--r2);border-radius:8px;padding:10px 14px;font-size:13px;color:var(--r2);margin-bottom:12px;display:none}
+.sbtn{width:100%;background:var(--g2);color:#fff;border:none;border-radius:9px;padding:13px;font-family:'Plus Jakarta Sans',sans-serif;font-weight:700;font-size:14px;cursor:pointer;transition:background .2s}
+.sbtn:hover:not(:disabled){background:var(--g1)}
+.sbtn:disabled{opacity:.6;cursor:not-allowed}
+header{background:var(--g2);display:flex;align-items:center;justify-content:space-between;padding:0 28px;height:60px;position:sticky;top:0;z-index:200;box-shadow:0 2px 14px rgba(0,0,0,.16)}
+.lw{display:flex;align-items:center;gap:10px}
+.li{width:36px;height:36px;background:rgba(255,255,255,.14);border-radius:9px;display:flex;align-items:center;justify-content:center;flex-shrink:0}
+.lt{font-family:'Sora',sans-serif;font-weight:800;font-size:17px;color:#fff;letter-spacing:-.3px;line-height:1.1}
+.lt span{color:rgba(255,255,255,.6);font-weight:400;font-size:11px;display:block;letter-spacing:.4px;font-family:'Plus Jakarta Sans',sans-serif}
+.nr{display:flex;align-items:center;gap:8px}
+.pill{display:flex;align-items:center;gap:6px;background:rgba(255,255,255,.13);border-radius:20px;padding:4px 12px;font-size:11px;color:rgba(255,255,255,.88);font-weight:500}
+.dot{width:7px;height:7px;background:#86efac;border-radius:50%;flex-shrink:0}
+.dot.sp{background:transparent;border:2px solid #86efac;border-top-color:transparent;animation:spin .7s linear infinite}
+@keyframes spin{to{transform:rotate(360deg)}}
+.nd{color:rgba(255,255,255,.55);font-size:12px}
+.ib{background:rgba(255,255,255,.12);border:none;border-radius:8px;padding:7px 11px;color:#fff;font-size:14px;cursor:pointer;transition:background .2s;line-height:1}
+.ib:hover{background:rgba(255,255,255,.22)}
+.ib:disabled{opacity:.45;cursor:not-allowed}
+.ab{background:var(--o2);color:#fff;border:none;border-radius:8px;padding:7px 15px;font-family:'Plus Jakarta Sans',sans-serif;font-weight:700;font-size:12.5px;cursor:pointer;display:flex;align-items:center;gap:5px;transition:background .2s}
+.ab:hover{background:var(--o1)}
+.ab:disabled{opacity:.5;cursor:not-allowed}
+main{max-width:1400px;margin:0 auto;padding:22px 20px}
+.bn{border-radius:10px;padding:11px 16px;display:none;align-items:center;gap:10px;margin-bottom:15px;font-size:13px;font-weight:500}
+.bn.i{background:var(--bbg);border:1.5px solid var(--b2);color:var(--b1)}
+.bn.e{background:var(--rbg);border:1.5px solid var(--r2);color:var(--r2)}
+.bn.on{display:flex}
+.sp2{width:14px;height:14px;border:2px solid rgba(37,99,235,.3);border-top-color:var(--b2);border-radius:50%;animation:spin .8s linear infinite;flex-shrink:0}
+.stats{display:grid;grid-template-columns:repeat(5,1fr);gap:12px;margin-bottom:20px}
+.st{background:var(--wh);border-radius:var(--rad);padding:16px 18px;box-shadow:var(--sh);border-top:4px solid;transition:transform .15s}
+.st:hover{transform:translateY(-2px)}
+.st.g{border-color:var(--g2)}.st.o{border-color:var(--o2)}.st.b{border-color:var(--b2)}.st.r{border-color:var(--r2)}.st.y{border-color:var(--y2)}
+.sn3{font-family:'Sora',sans-serif;font-size:30px;font-weight:800;line-height:1}
+.st.g .sn3{color:var(--g2)}.st.o .sn3{color:var(--o2)}.st.b .sn3{color:var(--b2)}.st.r .sn3{color:var(--r2)}.st.y .sn3{color:var(--y2)}
+.sl2{font-size:11px;color:var(--s2);font-weight:600;letter-spacing:.3px;margin-top:4px}
+.tb{background:var(--wh);border-radius:var(--rad);padding:11px 15px;box-shadow:var(--sh);margin-bottom:14px;display:flex;align-items:center;gap:9px;flex-wrap:wrap}
+.sw{flex:1;min-width:180px;position:relative}
+.sw input{width:100%;border:1.5px solid var(--s4);border-radius:8px;padding:7px 12px 7px 32px;font-family:'Plus Jakarta Sans',sans-serif;font-size:13px;outline:none;transition:border-color .2s;background:var(--wh)}
+.sw input:focus{border-color:var(--g2)}
+.si3{position:absolute;left:10px;top:50%;transform:translateY(-50%);font-size:13px;color:var(--s3)}
+.tb select{border:1.5px solid var(--s4);border-radius:8px;padding:7px 11px;font-family:'Plus Jakarta Sans',sans-serif;font-size:13px;background:var(--wh);color:var(--tx);cursor:pointer;outline:none;transition:border-color .2s}
+.tb select:focus{border-color:var(--g2)}
+.tw{background:var(--wh);border-radius:var(--rad);box-shadow:var(--sh);overflow-x:auto}
+table{width:100%;border-collapse:collapse;font-size:13px}
+thead tr{background:#f8faf8;border-bottom:2px solid var(--s4)}
+thead th{text-align:left;padding:11px 13px;font-size:10px;font-weight:700;color:var(--s2);letter-spacing:.7px;text-transform:uppercase;white-space:nowrap}
+tbody tr{border-bottom:1px solid var(--s5);transition:background .1s}
+tbody tr:last-child{border-bottom:none}
+tbody tr:hover{background:#f8faf8}
+tbody td{padding:10px 13px;vertical-align:middle}
+.bg{display:inline-block;padding:3px 8px;border-radius:20px;font-size:11px;font-weight:700;white-space:nowrap}
+.bon{background:var(--bbg);color:var(--b1)}.brt{background:var(--obg);color:var(--o1)}
+.bh{background:var(--rbg);color:var(--r1)}.bm{background:var(--ybg);color:var(--y1)}.bl{background:var(--gbg);color:var(--g1)}
+.ss{border:1.5px solid var(--s4);border-radius:7px;padding:5px 8px;font-family:'Plus Jakarta Sans',sans-serif;font-size:11.5px;font-weight:600;cursor:pointer;outline:none;min-width:115px;transition:all .15s}
+.ss.s0{background:var(--obg);color:var(--o1);border-color:var(--o2)}
+.ss.s1{background:var(--bbg);color:var(--b1);border-color:var(--b2)}
+.ss.s2{background:var(--gbg);color:var(--g1);border-color:var(--g3)}
+.ss:disabled{opacity:.5;cursor:wait}
+.tc{font-weight:600;max-width:170px}.dc{color:var(--s2);max-width:165px;font-size:12px;line-height:1.5}.oc{font-weight:600;font-size:12px;white-space:nowrap}
+.db{background:none;border:none;cursor:pointer;color:var(--s4);font-size:14px;padding:3px 7px;border-radius:5px;transition:all .15s;line-height:1}
+.db:hover{color:var(--r2);background:var(--rbg)}
+.db:disabled{opacity:.3;cursor:wait}
+.nr2{text-align:center;padding:52px;color:var(--s3);font-size:15px}
+.save-bar{position:fixed;bottom:20px;left:50%;transform:translateX(-50%) translateY(60px);background:#1f2937;color:#fff;border-radius:8px;padding:9px 18px;font-size:12.5px;font-weight:600;box-shadow:0 4px 20px rgba(0,0,0,.2);z-index:1000;transition:transform .25s;display:flex;align-items:center;gap:8px;white-space:nowrap}
+.save-bar.show{transform:translateX(-50%) translateY(0)}
+.save-bar.ok{background:var(--g1)}
+.save-bar.err{background:var(--r2)}
+.ov{display:none;position:fixed;inset:0;background:rgba(0,0,0,.42);z-index:500;align-items:center;justify-content:center;backdrop-filter:blur(3px)}
+.ov.on{display:flex}
+.mo{background:var(--wh);border-radius:18px;width:640px;max-width:96vw;max-height:92vh;overflow-y:auto;box-shadow:0 24px 70px rgba(0,0,0,.22);animation:up .2s ease}
+.mh{background:linear-gradient(120deg,var(--g1),var(--g2));padding:18px 22px;border-radius:18px 18px 0 0;display:flex;align-items:center;justify-content:space-between}
+.mh h2{font-family:'Sora',sans-serif;font-size:16px;font-weight:700;color:#fff}
+.mx{background:rgba(255,255,255,.18);border:none;border-radius:50%;width:29px;height:29px;cursor:pointer;color:#fff;font-size:15px;line-height:29px;text-align:center;transition:background .15s}
+.mx:hover{background:rgba(255,255,255,.3)}
+.mb{padding:20px 22px}
+.fg{display:grid;grid-template-columns:1fr 1fr;gap:13px}
+.fg .g{display:flex;flex-direction:column;gap:4px}
+.fg .g.f{grid-column:1/-1}
+.fg label{font-size:11px;font-weight:700;color:var(--s2);letter-spacing:.5px}
+.fg input,.fg select,.fg textarea{border:1.5px solid var(--s4);border-radius:8px;padding:8px 11px;font-family:'Plus Jakarta Sans',sans-serif;font-size:13px;color:var(--tx);background:var(--wh);outline:none;transition:border-color .2s;resize:none}
+.fg input:focus,.fg select:focus,.fg textarea:focus{border-color:var(--g2)}
+.mf{padding:13px 22px;border-top:1px solid var(--s5);display:flex;gap:8px;justify-content:flex-end}
+.bc{background:var(--s5);border:none;border-radius:8px;padding:8px 16px;font-family:'Plus Jakarta Sans',sans-serif;font-weight:600;font-size:13px;color:var(--s1);cursor:pointer}
+.bc:hover{background:var(--s4)}
+.bsv{background:var(--g2);border:none;border-radius:8px;padding:8px 20px;font-family:'Plus Jakarta Sans',sans-serif;font-weight:700;font-size:13px;color:#fff;cursor:pointer;display:flex;align-items:center;gap:6px}
+.bsv:hover{background:var(--g1)}
+.bsv:disabled{opacity:.6;cursor:not-allowed}
+footer{text-align:center;padding:22px 0 16px;color:var(--s3);font-size:11.5px}
+footer a{color:var(--g2);text-decoration:none}
+footer a:hover{text-decoration:underline}
+</style>
+</head>
+<body>
+<div id="setup">
+  <div class="sc">
+    <div class="slogo">
+      <div class="sli"><svg viewBox="0 0 32 32" fill="none" width="28" height="28"><circle cx="16" cy="16" r="15" fill="#1a4d24"/><path d="M16 5C10 5 7 10 7 15c0 5 3 10 9 12 6-2 9-7 9-12 0-5-3-10-9-10Z" fill="#4CAF61"/><path d="M16 8s-4 4-4 8 2 8 4 10c2-2 4-6 4-10S16 8 16 8Z" fill="white" opacity=".9"/><path d="M16 12v14M13 15l3-2 3 2" stroke="#1a4d24" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
+      <div class="slt">ALPINO <small>RETURNS &amp; ISSUES TRACKER</small></div>
+    </div>
+    <h2>Connect with GitHub</h2>
+    <p class="desc">Enter your GitHub username and Personal Access Token to enable saving. Your token is stored in this browser only.</p>
+    <div class="tip">&#128161; <strong>One-time setup.</strong> After connecting once, the dashboard opens directly every time. Share the same details with your manager.</div>
+    <div class="fl">YOUR GITHUB USERNAME</div>
+    <input class="fi" id="cfgOwner" type="text" placeholder="e.g. yuvraj">
+    <div class="fl">REPOSITORY NAME</div>
+    <input class="fi" id="cfgRepo" type="text" value="alpino-dashboard">
+    <div class="fl">PERSONAL ACCESS TOKEN (ghp_ or github_pat_)</div>
+    <input class="fi" id="cfgToken" type="password" placeholder="ghp_xxxxxxxxxxxxxxxxxxxxxxxxxxxx">
+    <div class="serr" id="sErr"></div>
+    <button class="sbtn" id="sBtn" onclick="doSetup()"><span id="sBtnTxt">Connect &amp; Open Dashboard &#8594;</span></button>
+  </div>
+</div>
+<header>
+  <div class="lw">
+    <div class="li"><svg viewBox="0 0 32 32" fill="none" width="22" height="22"><circle cx="16" cy="16" r="15" fill="rgba(255,255,255,.15)"/><path d="M16 5C10 5 7 10 7 15c0 5 3 10 9 12 6-2 9-7 9-12 0-5-3-10-9-10Z" fill="#a7f3d0"/><path d="M16 8s-4 4-4 8 2 8 4 10c2-2 4-6 4-10S16 8 16 8Z" fill="white" opacity=".9"/><path d="M16 12v14M13 15l3-2 3 2" stroke="#2D7A3A" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
+    <div class="lt">ALPINO <span>RETURNS &amp; ISSUES TRACKER</span></div>
+  </div>
+  <div class="nr">
+    <div class="pill"><div class="dot" id="dot"></div><span id="plbl">GitHub Sync</span></div>
+    <span class="nd" id="hdt"></span>
+    <button class="ib" id="bRef" onclick="loadData()" title="Refresh">&#8635;</button>
+    <button class="ib" onclick="resetSetup()" title="Change settings">&#9881;</button>
+    <button class="ab" id="bAdd" onclick="openModal()">&#xff0b; Add Issue</button>
+  </div>
+</header>
+<main>
+  <div class="bn i" id="bnL"><div class="sp2"></div><span id="bnLT">Loading...</span></div>
+  <div class="bn e" id="bnE">&#9888;&#65039; <span id="bnET"></span></div>
+  <div class="stats">
+    <div class="st g"><div class="sn3" id="sTot">&#8212;</div><div class="sl2">Total Issues</div></div>
+    <div class="st o"><div class="sn3" id="sNS">&#8212;</div><div class="sl2">Not Started</div></div>
+    <div class="st b"><div class="sn3" id="sIP">&#8212;</div><div class="sl2">In Progress</div></div>
+    <div class="st r"><div class="sn3" id="sHi">&#8212;</div><div class="sl2">High Severity</div></div>
+    <div class="st y"><div class="sn3" id="sDn">&#8212;</div><div class="sl2">Done</div></div>
+  </div>
+  <div class="tb">
+    <div class="sw"><span class="si3">&#128269;</span><input type="text" id="qS" placeholder="Search title, description, owner..." oninput="render()"></div>
+    <select id="qD" onchange="render()"><option value="">All Departments</option><option>Online</option><option>Return</option></select>
+    <select id="qSv" onchange="render()"><option value="">All Severities</option><option value="High">High</option><option value="Med">Med</option><option value="Low">Low</option></select>
+    <select id="qSt" onchange="render()"><option value="">All Statuses</option><option value="Not Started">Not Started</option><option value="In Progress">In Progress</option><option value="Done">Done</option></select>
+  </div>
+  <div class="tw">
+    <table>
+      <thead><tr><th>#</th><th>Dept</th><th>Problem Title</th><th>Description</th><th>Root Cause</th><th>Sev</th><th>Freq</th><th>Owner</th><th>Status</th><th>Suggested Fix</th><th></th></tr></thead>
+      <tbody id="tb"></tbody>
+    </table>
+    <div class="nr2" id="noR" style="display:none">No issues match your filters.</div>
+  </div>
+</main>
+<footer>&#169; 2025 Alpino Health Foods &middot; <a id="ghLink" href="#" target="_blank">View on GitHub &#8599;</a></footer>
+<div class="ov" id="ov" onclick="ovCk(event)">
+  <div class="mo">
+    <div class="mh"><h2>Add New Issue</h2><button class="mx" onclick="closeModal()">&#10005;</button></div>
+    <div class="mb">
+      <div class="fg">
+        <div class="g"><label>DEPARTMENT *</label><select id="fD"><option>Online</option><option>Return</option></select></div>
+        <div class="g"><label>SEVERITY *</label><select id="fSv"><option value="High">High</option><option value="Med">Medium</option><option value="Low">Low</option></select></div>
+        <div class="g f"><label>PROBLEM TITLE *</label><input type="text" id="fT" placeholder="Clear, concise title"></div>
+        <div class="g f"><label>DETAILED DESCRIPTION</label><textarea id="fDc" rows="3" placeholder="Describe the problem..."></textarea></div>
+        <div class="g f"><label>ROOT CAUSE</label><textarea id="fR" rows="2" placeholder="What is causing this?"></textarea></div>
+        <div class="g f"><label>IMPACT (CUSTOMER / BUSINESS)</label><textarea id="fI" rows="2" placeholder="Customer or business impact..."></textarea></div>
+        <div class="g"><label>FREQUENCY</label><select id="fFq"><option>High</option><option>Daily</option><option>Medium</option><option>Weekly</option><option>Low</option></select></div>
+        <div class="g"><label>OWNER</label><select id="fO"><option>Ops Team</option><option>A/c Team</option><option>Tech Team</option><option>Logistics Team</option><option>Management</option></select></div>
+        <div class="g f"><label>SUGGESTED SOLUTION</label><textarea id="fSl" rows="2" placeholder="Proposed fix..."></textarea></div>
+        <div class="g"><label>STATUS</label><select id="fSt"><option value="Not Started">Not Started</option><option value="In Progress">In Progress</option><option value="Done">Done</option></select></div>
+        <div class="g"><label>EXAMPLE CASE</label><input type="text" id="fEx" placeholder="Optional reference"></div>
+      </div>
+    </div>
+    <div class="mf">
+      <button class="bc" onclick="closeModal()">Cancel</button>
+      <button class="bsv" id="bSv" onclick="addIssue()"><span id="svLbl">Save to GitHub</span></button>
+    </div>
+  </div>
+</div>
+<div class="save-bar" id="bar"></div>
+<script>
+const apiBase=(o,r)=>'https://api.github.com/repos/'+o+'/'+r+'/contents/data.json';
+let CFG=JSON.parse(localStorage.getItem('alpino_cfg')||'null'),issues=[],fileSHA='',busy=false;
+function resetSetup(){if(!confirm('Reset connection?'))return;localStorage.removeItem('alpino_cfg');location.reload()}
+async function doSetup(){
+  const owner=document.getElementById('cfgOwner').value.trim(),repo=document.getElementById('cfgRepo').value.trim(),token=document.getElementById('cfgToken').value.trim();
+  const err=document.getElementById('sErr');err.style.display='none';
+  if(!owner||!repo||!token){setE('Please fill in all three fields.');return}
+  if(!token.startsWith('github_pat_')&&!token.startsWith('ghp_')){setE('Token should start with "github_pat_" or "ghp_"');return}
+  const btn=document.getElementById('sBtn');document.getElementById('sBtnTxt').textContent='Connecting...';btn.disabled=true;
+  try{const r=await ghG(owner,repo,token);CFG={owner,repo,token};localStorage.setItem('alpino_cfg',JSON.stringify(CFG));fileSHA=r.sha;issues=JSON.parse(atob(r.content.replace(/\n/g,''))).issues||[];document.getElementById('setup').style.display='none';init()}
+  catch(e){setE('Could not connect: '+e.message);btn.disabled=false;document.getElementById('sBtnTxt').textContent='Connect & Open Dashboard'}
+}
+function setE(m){const el=document.getElementById('sErr');el.textContent=m;el.style.display='block'}
+async function ghG(o,r,t){const res=await fetch(apiBase(o,r),{headers:{Authorization:'Bearer '+t,Accept:'application/vnd.github+json'}});if(!res.ok){const d=await res.json().catch(()=>({}));throw new Error(d.message||'HTTP '+res.status)}return res.json()}
+async function ghP(nd){const content=btoa(unescape(encodeURIComponent(JSON.stringify(nd,null,2))));const body={message:'Update issues - '+new Date().toISOString(),content,sha:fileSHA};const res=await fetch(apiBase(CFG.owner,CFG.repo),{method:'PUT',headers:{Authorization:'Bearer '+CFG.token,Accept:'application/vnd.github+json','Content-Type':'application/json'},body:JSON.stringify(body)});if(!res.ok){const d=await res.json().catch(()=>({}));if(res.status===409)throw new Error('Conflict - refresh and try again');throw new Error(d.message||'HTTP '+res.status)}const d=await res.json();fileSHA=d.content.sha;return d}
+function init(){document.getElementById('hdt').textContent=new Date().toLocaleDateString('en-IN',{day:'2-digit',month:'short',year:'numeric'});document.getElementById('ghLink').href='https://github.com/'+CFG.owner+'/'+CFG.repo+'/blob/main/data.json';render()}
+async function loadData(){if(busy)return;busy=true;setSy(true,'Refreshing...');hideE();try{const r=await ghG(CFG.owner,CFG.repo,CFG.token);fileSHA=r.sha;issues=JSON.parse(atob(r.content.replace(/\n/g,''))).issues||[];render();bar('Synced - '+issues.length+' issues','ok')}catch(e){showE(e.message);if(issues.length)render()}finally{setSy(false);busy=false}}
+async function persist(msg){const pl={issues,lastUpdated:new Date().toISOString()};bar('Saving...','');await ghP(pl);bar(msg,'ok')}
+function render(){const q=document.getElementById('qS').value.toLowerCase(),qD=document.getElementById('qD').value,qSv=document.getElementById('qSv').value,qSt=document.getElementById('qSt').value;const rows=issues.filter(i=>(!q||[i.title,i.desc,i.owner,i.root,i.impact||''].join(' ').toLowerCase().includes(q))&&(!qD||i.dept===qD)&&(!qSv||i.sev===qSv)&&(!qSt||i.status===qSt));const tbody=document.getElementById('tb');tbody.innerHTML='';document.getElementById('noR').style.display=rows.length?'none':'block';rows.forEach((iss,idx)=>{const dc=iss.dept==='Online'?'bon':'brt',sc=iss.sev==='High'?'bh':iss.sev==='Med'?'bm':'bl',st=sc2(iss.status),tr=document.createElement('tr');tr.innerHTML='<td style="font-weight:700;color:var(--s3);font-size:11px">'+(idx+1)+'</td><td><span class="bg '+dc+'">'+es(iss.dept)+'</span></td><td class="tc">'+es(iss.title)+'</td><td class="dc">'+es(iss.desc)+'</td><td class="dc">'+es(iss.root)+'</td><td><span class="bg '+sc+'">'+es(iss.sev)+'</span></td><td style="font-size:11.5px;color:var(--s2)">'+es(iss.freq)+'</td><td class="oc">'+es(iss.owner)+'</td><td><select class="ss '+st+'" data-id="'+iss.id+'" onchange="chSt(this)"><option value="Not Started" '+(iss.status==='Not Started'?'selected':'')+'>🟠 Not Started</option><option value="In Progress" '+(iss.status==='In Progress'?'selected':'')+'>🔵 In Progress</option><option value="Done" '+(iss.status==='Done'?'selected':'')+'>🟢 Done</option></select></td><td class="dc">'+es(iss.sol)+'</td><td><button class="db" data-id="'+iss.id+'" onclick="dlI(this)">&#128465;</button></td>';tbody.appendChild(tr)});updS()}
+const sc2=s=>s==='In Progress'?'s1':s==='Done'?'s2':'s0';
+const es=s=>(!s||s==='—')?'<span style="color:var(--s4)">—</span>':String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+function updS(){document.getElementById('sTot').textContent=issues.length;document.getElementById('sNS').textContent=issues.filter(i=>i.status==='Not Started').length;document.getElementById('sIP').textContent=issues.filter(i=>i.status==='In Progress').length;document.getElementById('sHi').textContent=issues.filter(i=>i.sev==='High').length;document.getElementById('sDn').textContent=issues.filter(i=>i.status==='Done').length}
+async function chSt(sel){const id=sel.dataset.id,val=sel.value;sel.disabled=true;const iss=issues.find(i=>i.id===id),old=iss?.status;if(iss)iss.status=val;updS();sel.className='ss '+sc2(val);try{await persist('Status saved')}catch(e){if(iss)iss.status=old;updS();bar(e.message,'err')}finally{sel.disabled=false}}
+async function dlI(btn){if(!confirm('Remove this issue?'))return;const id=btn.dataset.id;btn.disabled=true;const prev=[...issues];issues=issues.filter(i=>i.id!==id);render();try{await persist('Issue deleted')}catch(e){issues=prev;render();bar('Delete failed','err');btn.disabled=false}}
+function openModal(){document.getElementById('ov').classList.add('on')}function closeModal(){document.getElementById('ov').classList.remove('on')}function ovCk(e){if(e.target===document.getElementById('ov'))closeModal()}
+function uid(){return Date.now().toString(36)+Math.random().toString(36).slice(2,6)}
+async function addIssue(){const title=document.getElementById('fT').value.trim();if(!title){alert('Please enter a Problem Title.');return}const btn=document.getElementById('bSv');btn.disabled=true;document.getElementById('svLbl').textContent='Saving...';const ni={id:uid(),dept:document.getElementById('fD').value,title,desc:document.getElementById('fDc').value||'—',root:document.getElementById('fR').value||'—',impact:document.getElementById('fI').value||'—',freq:document.getElementById('fFq').value,sev:document.getElementById('fSv').value,owner:document.getElementById('fO').value,status:document.getElementById('fSt').value,sol:document.getElementById('fSl').value||'—',example:document.getElementById('fEx').value||'—',createdAt:new Date().toISOString().slice(0,10)};issues.unshift(ni);try{await persist('New issue saved!');closeModal();['fT','fDc','fR','fI','fSl','fEx'].forEach(id=>document.getElementById(id).value='');render()}catch(e){issues.shift();bar('Save failed: '+e.message,'err')}finally{btn.disabled=false;document.getElementById('svLbl').textContent='Save to GitHub'}}
+function setSy(on,msg=''){document.getElementById('dot').className=on?'dot sp':'dot';document.getElementById('plbl').textContent=on?'Syncing...':'GitHub Live';const bl=document.getElementById('bnL');document.getElementById('bnLT').textContent=msg;bl.className='bn i'+(on?' on':'');document.getElementById('bAdd').disabled=on;document.getElementById('bRef').disabled=on}
+function showE(m){document.getElementById('bnET').textContent=m;document.getElementById('bnE').className='bn e on'}function hideE(){document.getElementById('bnE').className='bn e'}
+let btm;function bar(msg,type=''){const el=document.getElementById('bar');el.textContent=msg;el.className='save-bar '+type+' show';clearTimeout(btm);btm=setTimeout(()=>el.classList.remove('show'),3500)}
+if(CFG){document.getElementById('setup').style.display='none';setSy(true,'Loading from GitHub...');loadData().then(init)}
+</script>
+</body>
+</html>
